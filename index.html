@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Line Drawing</title>
+    <title>Continuous Random Tree</title>
     <style>
         body {
             display: flex;
@@ -24,9 +24,11 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        const baseLineLength = 100; // Base length for branches
+        const baseLineLength = 50; // Shorter base length for branches
         const maxAngle = Math.PI / 4; // Maximum angle offset for branching
         const maxDepth = 8; // Maximum depth of branches
+        let currentDepth = 0; // Start with no branches
+        const growSpeed = 100; // Time (ms) between growing steps
 
         function drawLine(x, y, length, angle) {
             const xEnd = x - length * Math.cos(angle);
@@ -54,17 +56,27 @@
             branch(end.x, end.y, angle + angleOffset2, depth - 1);
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
+        function animate() {
+            if (currentDepth === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+            }
 
             // Start drawing branches from the center bottom of the canvas
-            branch(canvas.width / 2, canvas.height, Math.PI / 2, maxDepth);
+            branch(canvas.width / 2, canvas.height, Math.PI / 2, currentDepth);
+
+            // Increment depth until maxDepth is reached
+            currentDepth++;
+            if (currentDepth > maxDepth) {
+                currentDepth = 0; // Reset depth for continuous growth
+            }
+
+            setTimeout(animate, growSpeed); // Continue animation loop
         }
 
-        // Start the drawing process
-        draw();
+        // Start the animation
+        animate();
     </script>
 </body>
 </html>
