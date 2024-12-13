@@ -24,6 +24,11 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
+        const lineLength = 100; // Fixed length for all lines
+        const branchAngle = Math.PI / 4; // Maximum angle for branching
+        const maxDepth = 5; // Maximum depth of branches
+        let branches = []; // Array to hold branches
+
         function drawLine(x, y, length, angle) {
             const xEnd = x + length * Math.cos(angle);
             const yEnd = y + length * Math.sin(angle);
@@ -34,23 +39,37 @@
             return { x: xEnd, y: yEnd };
         }
 
-        function branch(x, y, length, angle, depth) {
+        function branch(x, y, angle, depth) {
             if (depth === 0) return;
-            const end = drawLine(x, y, length, angle);
-            const newLength = length * 0.7; // Reduce length for next branches
-            const angleOffset = Math.random() * Math.PI / 4; // Random angle offset
-            branch(end.x, end.y, newLength, angle - angleOffset, depth - 1);
-            branch(end.x, end.y, newLength, angle + angleOffset, depth - 1);
+            const end = drawLine(x, y, lineLength, angle);
+            branches.push({ x: end.x, y: end.y, angle: angle - branchAngle, depth: depth - 1 });
+            branches.push({ x: end.x, y: end.y, angle: angle + branchAngle, depth: depth - 1 });
         }
 
-        function startDrawing() {
+        function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
-            branch(canvas.width / 2, canvas.height, 100, -Math.PI / 2, 5); // Start from the bottom center
+
+            // Draw the initial branch
+            if (branches.length === 0) {
+                branch(canvas.width / 2, canvas.height, Math.PI / 2, maxDepth);
+            }
+
+            // Draw all branches
+            for (let i = 0; i < branches.length; i++) {
+                const { x, y, angle, depth } = branches[i];
+                if (depth > 0) {
+                    branch(x, y, angle, depth);
+                }
+            }
+
+            // Continue the animation
+            requestAnimationFrame(update);
         }
 
-        startDrawing();
+        // Start the drawing process
+        update();
     </script>
 </body>
 </html>
