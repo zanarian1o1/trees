@@ -27,11 +27,10 @@
         const lineLength = 100; // Fixed length for all lines
         const branchAngle = Math.PI / 4; // Maximum angle for branching
         const maxDepth = 5; // Maximum depth of branches
-        let branches = []; // Array to hold branches
 
         function drawLine(x, y, length, angle) {
-            const xEnd = x + length * Math.cos(angle);
-            const yEnd = y + length * Math.sin(angle);
+            const xEnd = x - length * Math.cos(angle);
+            const yEnd = y - length * Math.sin(angle);
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(xEnd, yEnd);
@@ -41,26 +40,25 @@
 
         function branch(x, y, angle, depth) {
             if (depth === 0) return;
-            const end = drawLine(x, y, lineLength, angle);
-            // Create new branches
+
+            const end = drawLine(x, y, lineLength / depth, angle); // Reduce line length for each depth
+
+            // Create left and right branches
             branch(end.x, end.y, angle - branchAngle, depth - 1);
             branch(end.x, end.y, angle + branchAngle, depth - 1);
         }
 
-        function update() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
 
             // Start drawing branches from the center bottom of the canvas
             branch(canvas.width / 2, canvas.height, Math.PI / 2, maxDepth);
-
-            // Continue the animation
-            requestAnimationFrame(update);
         }
 
         // Start the drawing process
-        update();
+        draw();
     </script>
 </body>
 </html>
