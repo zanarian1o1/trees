@@ -83,7 +83,7 @@
                 }
             }
 
-            return newBranches;
+            return newBranches; // Return only non-intersecting branches
         }
 
         function growTree() {
@@ -94,7 +94,7 @@
                 newBranches.push(...branch(x, y, angle, depth));
             });
 
-            branches.push(...newBranches); // Add new branches to the array
+            branches = newBranches; // Only keep the new branches for the next growth step
         }
 
         function animate() {
