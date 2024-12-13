@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1.0</title>
+    <title>Dynamic Tree Growth</title>
     <style>
         body {
             display: flex;
@@ -24,14 +24,19 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        const baseLineLength = 50; // Base length for branches
-        const maxAngle = Math.PI / 4; // Maximum angle offset for branching
-        const growSpeed = 200; // Time (ms) between growing steps
-        const maxDepth = 10; // Maximum depth of branches
+        // Constants for tree growth
+        const BASE_LINE_LENGTH = 50;
+        const MAX_ANGLE = Math.PI / 4;
+        const GROW_SPEED = 200;
+        const MAX_DEPTH = 10;
 
-        let branches = []; // Array to hold growing branches
-        let drawnLines = []; // Array to store all drawn line segments
+        // Arrays to manage the tree's growth
+        let branches = [];
+        let drawnLines = [];
 
+        /**
+         * Draws a line on the canvas.
+         */
         function drawLine(x1, y1, x2, y2) {
             ctx.beginPath();
             ctx.moveTo(x1, y1);
@@ -39,12 +44,12 @@
             ctx.stroke();
         }
 
+        /**
+         * Checks if a line intersects with any previously drawn lines.
+         */
         function lineIntersects(x1, y1, x2, y2) {
-            // Check if the new line intersects any previously drawn line
             for (const line of drawnLines) {
                 const { x1: lx1, y1: ly1, x2: lx2, y2: ly2 } = line;
-
-                // Check for intersection
                 if (doLinesIntersect(x1, y1, x2, y2, lx1, ly1, lx2, ly2)) {
                     return true;
                 }
@@ -52,8 +57,10 @@
             return false;
         }
 
+        /**
+         * Determines if two line segments intersect.
+         */
         function doLinesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
-            // Helper function to determine if two line segments intersect
             function ccw(ax, ay, bx, by, cx, cy) {
                 return (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
             }
@@ -63,61 +70,76 @@
             );
         }
 
+        /**
+         * Creates new branches from a given point, with random length and angle.
+         */
         function branch(x, y, angle, depth) {
-            if (depth >= maxDepth) return [];
+            if (depth >= MAX_DEPTH) return [];
 
-            // Randomize line length and angle offsets symmetrically
-            const length = baseLineLength * (Math.random() * 0.5 + 0.5); // Random length
-            const angleOffset1 = maxAngle * (Math.random() - 0.5); // Random symmetrical offset
-            const angleOffset2 = maxAngle * (Math.random() - 0.5);
+            const length = BASE_LINE_LENGTH * (Math.random() * 0.5 + 0.5);
+            const angleOffsets = [
+                MAX_ANGLE * (Math.random() - 0.5),
+                MAX_ANGLE * (Math.random() - 0.5)
+            ];
 
             let newBranches = [];
-            for (const offset of [angleOffset1, angleOffset2]) {
+
+            angleOffsets.forEach(offset => {
                 const xEnd = x - length * Math.cos(angle + offset);
                 const yEnd = y - length * Math.sin(angle + offset);
 
                 if (!lineIntersects(x, y, xEnd, yEnd)) {
-                    drawLine(x, y, xEnd, yEnd); // Draw branch if no intersection
-                    drawnLines.push({ x1: x, y1: y, x2: xEnd, y2: yEnd }); // Add to drawn lines
+                    drawLine(x, y, xEnd, yEnd);
+                    drawnLines.push({ x1: x, y1: y, x2: xEnd, y2: yEnd });
                     newBranches.push({ x: xEnd, y: yEnd, angle: angle + offset, depth: depth + 1 });
                 }
-            }
+            });
 
-            return newBranches; // Return only non-intersecting branches
+            return newBranches;
         }
 
+        /**
+         * Grows the tree by generating new branches.
+         */
         function growTree() {
-            let newBranches = [];
+            const newBranches = [];
 
-            branches.forEach(branchData => {
-                const { x, y, angle, depth } = branchData;
+            branches.forEach(({ x, y, angle, depth }) => {
                 newBranches.push(...branch(x, y, angle, depth));
             });
 
-            branches = newBranches; // Only keep the new branches for the next growth step
+            branches = newBranches;
         }
 
+        /**
+         * Animates the tree growth step by step.
+         */
         function animate() {
-            growTree(); // Add new branches
-            setTimeout(animate, growSpeed); // Loop animation
+            growTree();
+            if (branches.length > 0) {
+                setTimeout(animate, GROW_SPEED);
+            }
         }
 
+        /**
+         * Initializes the tree growth process.
+         */
         function initializeTree() {
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
 
-            // Start with a single branch at the bottom center
+            // Start with a single trunk in the center bottom
             branches.push({
                 x: canvas.width / 2,
                 y: canvas.height,
-                angle: Math.PI / 2, // Straight up
-                depth: 0 // Initial depth
+                angle: Math.PI / 2,
+                depth: 0
             });
 
-            animate(); // Start animation
+            animate();
         }
 
-        // Initialize and start the tree
+        // Start the tree animation
         initializeTree();
     </script>
 </body>
