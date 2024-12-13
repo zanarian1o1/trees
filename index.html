@@ -24,10 +24,10 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        const baseLineLength = 50; // Shorter base length for branches
-        const maxAngle = Math.PI / 2; // Maximum angle offset for branching (wider range)
+        const baseLineLength = 50; // Base length for branches
+        const maxAngle = Math.PI / 4; // Maximum angle offset for branching
         const growSpeed = 200; // Time (ms) between growing steps
-        const maxDepth = 10; // How deep the branches will grow
+        const maxDepth = 10; // Maximum depth of branches
 
         let branches = []; // Array to hold growing branches
         let drawnLines = []; // Array to store all drawn line segments
@@ -66,10 +66,10 @@
         function branch(x, y, angle, depth) {
             if (depth >= maxDepth) return [];
 
-            // Randomize line length and angle offsets
+            // Randomize line length and angle offsets symmetrically
             const length = baseLineLength * (Math.random() * 0.5 + 0.5); // Random length
-            const angleOffset1 = (Math.random() - 0.5) * maxAngle; // Random angle
-            const angleOffset2 = (Math.random() - 0.5) * maxAngle;
+            const angleOffset1 = maxAngle * (Math.random() - 0.5); // Random symmetrical offset
+            const angleOffset2 = maxAngle * (Math.random() - 0.5);
 
             let newBranches = [];
             for (const offset of [angleOffset1, angleOffset2]) {
